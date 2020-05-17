@@ -9,7 +9,7 @@ This playbook contains configuration for:
 - firewall setup (using `DOCKER_USER` chain. Docker remains running with enabled `iptables`)
 - zsh and oh-my-zsh configuration
 - adding specified users
-- disabling logging in using `root` user
+- disabled logging in using `root` user
 
 ## Usage
 
