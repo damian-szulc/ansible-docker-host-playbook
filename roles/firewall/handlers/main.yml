@@ -8,5 +8,6 @@
     - ipv6
   tags:
     - firewall
+  become: true
 - name: systemctl daemon reloaded
   command: systemctl daemon-reload
