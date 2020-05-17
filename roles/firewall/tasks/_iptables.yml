@@ -1,0 +1,15 @@
+---
+- name: apt packages installed
+  apt:
+    pkg:
+      - iptables
+      - arptables
+      - ebtables
+
+- name: apt packages removed
+  apt:
+    pkg:
+      - ufw
+      - iptables-persistent
+      - netfilter-persistent
+    state: absent

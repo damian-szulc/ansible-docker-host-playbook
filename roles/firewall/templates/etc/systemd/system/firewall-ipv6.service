@@ -1,0 +1,14 @@
+[Unit]
+Description=Restore iptables ipv6 firewall rules
+Requires=networking.service
+Before=network-pre.target
+ConditionPathExists=/etc/firewall/rules.ipv6
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/ip6tables-restore -n /etc/firewall/rules.ipv6
+ExecStop=/bin/true
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

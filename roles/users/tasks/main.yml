@@ -1,0 +1,93 @@
+---
+  - name: User accounts created
+    user:
+      name: "{{ item }}"
+      groups:
+        - sudo
+        - docker
+      append: yes
+      shell: /usr/bin/zsh
+    with_items: "{{ users }}"
+    become: true
+
+  - name: zsh and git installed
+    apt:
+      pkg:
+        - git
+        - zsh
+
+  - name: oh-my-zsh cloned
+    git:
+      repo=https://github.com/robbyrussell/oh-my-zsh
+      dest=/home/{{ item }}/.oh-my-zsh
+      update=no
+    with_items: "{{ users }}"
+    become: true
+
+  - name: Changed oh-my-zsh ownership
+    file:
+      path: "/home/{{ item }}/.oh-my-zsh"
+      state: directory
+      recurse: yes
+      owner: "{{ item }}"
+    with_items: "{{ users }}"
+    become: true
+    
+  - name: Created new .zshrc
+    copy:
+      src=/home/{{ item }}/.oh-my-zsh/templates/zshrc.zsh-template
+      remote_src=yes
+      dest=/home/{{ item }}/.zshrc
+      force=no
+    with_items: "{{ users }}"
+    become: true
+
+  - name: Added authorized keys
+    authorized_key:
+      user: "{{ item }}"
+      key: "{{ lookup('file', 'files/keys/'+ item + '/id_rsa.pub') }}"
+    with_items: "{{ users }}"
+    become: true
+
+  - name: Allowed users to sudo without a password
+    lineinfile:
+      dest: "/etc/sudoers" # path: in version 2.3
+      state: "present"
+      regexp: "^%sudo"
+      line: "%sudo ALL=(ALL) NOPASSWD: ALL"
+    become: true
+
+  - name: No Root Login
+    replace:
+      path: /etc/ssh/sshd_config
+      regexp: 'PermitRootLogin yes'
+      replace: 'PermitRootLogin no'
+    become: true
+    register: PermitRootLogin
+
+  - name: Authentication methods
+    replace:
+      path: /etc/ssh/sshd_config
+      regexp: '^#?AuthenticationMethods'
+      replace: 'AuthenticationMethods publickey'
+    become: true
+    register: AuthenticationMethods
+
+  - name: No password authentication
+    replace:
+      path: /etc/ssh/sshd_config
+      regexp: '^#?PasswordAuthentication .*'
+      replace: 'PasswordAuthentication no'
+    become: true
+    register: PasswordAuthentication
+
+  - name: SSH service restart
+    service:
+      name: sshd
+      state: restarted
+    become: true
+    when: PermitRootLogin.changed or AuthenticationMethods.changed or PasswordAuthentication.changed
+    ignore_errors: True
+
+
+

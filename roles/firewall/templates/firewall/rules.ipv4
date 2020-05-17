@@ -1,0 +1,33 @@
+*filter
+
+# Reset counters
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+:FILTERS - [0:0]
+:DOCKER-USER - [0:0]
+
+# Flush
+-F INPUT
+-F DOCKER-USER
+-F FILTERS
+
+# basic allow
+-A INPUT -i lo -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i !{{ ansible_default_ipv4.interface }} -j ACCEPT
+
+# chain to filters
+-A INPUT -j FILTERS
+-A DOCKER-USER -i {{ ansible_default_ipv4.interface }} -j FILTERS
+
+-A FILTERS -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+
+{% for rule in firewall_allow %}
+-A FILTERS -p {{ rule.proto }} -m {{ rule.proto }} -m conntrack --ctorigdstport {{ rule.port }} -j ACCEPT
+{% endfor %}
+
+# FINAL REJECT
+-A FILTERS -j DROP
+
+COMMIT

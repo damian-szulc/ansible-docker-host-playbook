@@ -1,0 +1,21 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+
+-F INPUT
+
+-A INPUT -i lo -j ACCEPT
+-A INPUT -i !{{ ansible_default_ipv4.interface }} -j ACCEPT
+-A INPUT -p icmpv6 -j ACCEPT
+
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+{% for rule in firewall_allow %}
+-A INPUT -m state --state NEW -p {{ rule.proto }} -m {{ rule.proto }} -m conntrack --ctorigdstport {{ rule.port }} -j ACCEPT
+{% endfor %}
+
+-A INPUT -j REJECT --reject-with icmp6-adm-prohibited
+
+COMMIT
+#EOF

@@ -1,0 +1,12 @@
+---
+- name: firewall services restarted
+  service:
+    name: firewall-{{ item }}.service
+    state: restarted
+  loop:
+    - ipv4
+    - ipv6
+  tags:
+    - firewall
+- name: systemctl daemon reloaded
+  command: systemctl daemon-reload

@@ -1,0 +1,11 @@
+---
+- include: _iptables.yml
+  tags:
+    - legacy
+- include: _rules.yml
+  tags:
+    - firewall
+- include: _services.yml
+  tags:
+    - services    
+

@@ -1,0 +1,28 @@
+---
+- name: Read Ubuntu release
+  command: lsb_release -cs
+  register: release
+
+- name: Add docker repository key
+  apt_key:
+    id: 0EBFCD88
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  become: true
+
+- name: docker apt repository added
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ release.stdout_lines[0] }} stable
+    filename: docker
+    state: present
+  become: true
+
+- name: docker packages installed
+  apt:
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: present
+  become: true
+  notify: docker restarted

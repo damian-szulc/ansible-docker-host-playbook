@@ -1,0 +1,8 @@
+firewall_allow:
+  - proto: tcp
+    port: 22
+  - proto: tcp
+    port: 80
+
+users:
+  - test
