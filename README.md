@@ -6,7 +6,7 @@
 
 This playbook contains configuration for:
 - docker installation
-- firewall setup (using `DOCKER_USER` chain. Docker remains running with enabled `iptables`)
+- [firewall setup](https://unrouted.io/2017/08/15/docker-firewall/) (using `DOCKER_USER` chain. Docker remains running with [enabled `iptables`](https://docs.docker.com/network/iptables/))
 - zsh and oh-my-zsh configuration
 - adding specified users
 - disabled logging in using `root` user
